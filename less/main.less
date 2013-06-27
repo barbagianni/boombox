@@ -1,0 +1,226 @@
+body {
+  font-family: Arial;
+}
+
+.player {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-block;
+  width: 250px;
+  height: 340px;
+  border: 10px solid #555;
+  border-radius: 20px;
+
+  input[type="range"] {
+    position: absolute;
+    bottom: 25px;
+    left: 10px;
+    width: 230px;
+    border: 0;
+  }
+
+  .label() {
+    position: absolute;
+    left: 10px;
+    width: 230px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .trackName {
+    top: 260px;
+    .label;
+  }
+
+  .artist {
+    top: 240px;
+    .label;
+  }
+
+  .plate .logo {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    border: 2px solid grey;
+    border-radius: 27px;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    vertical-align: middle;
+    overflow: hidden;
+  }
+
+  .plate {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    margin: 0 auto;
+    -webkit-transform-origin: 100px 100px;
+
+    .ring {
+      position: absolute;
+      top:0;
+      left:0;
+      width: 190px;
+      height:190px;
+      border: 5px dotted #eee;
+      border-radius: 100px;
+    }
+    .ring > .ring{
+      top:-10px;
+      left:-10px;
+      width: 200px;
+      height:200px;
+      border-radius: 110px;
+    }
+    .ring > .ring > .ring{
+      width: 210px;
+      height:210px;
+      border-radius: 120px;
+    }
+  }
+
+  .play {
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    cursor: pointer;
+    font-size: 25px;
+  }
+
+  .pitch {
+    position: absolute;
+    bottom: 40px;
+    left: 10px;
+    font-weight: bold;
+  }
+}
+
+.player.disabled .play {
+  color: #777;
+  background-color: #bbb;
+}
+
+.player + .player {
+  left: 520px;
+}
+
+.crossfader {
+  position: absolute;
+  top: 10px;
+  left: 290px;
+  display: inline-block;
+  width: 200px;
+  height: 340px;
+  border: 10px solid #555;
+  border-radius: 20px;
+
+  input[type="range"] {
+    position: absolute;
+    bottom: 25px;
+    left: 10px;
+    width: 180px;
+  }
+
+  .leftPlayer {
+    position: absolute;
+    bottom: 40px;
+    left: 10px;
+    font-weight: bold;
+  }
+
+  .rightPlayer {
+    position: absolute;
+    bottom: 40px;
+    right: 10px;
+    font-weight: bold;
+  }
+
+  .levelMeter {
+    position: absolute;
+    top: 120px;
+    left: 60px;
+  }
+
+  .levelMeter + .levelMeter {
+    left: auto;
+    right: 60px;
+  }
+}
+
+.button {
+  padding: 2px;
+  border: 5px solid #888;
+  border-radius: 5px;
+}
+
+.connect {
+  position: absolute;
+  top: 380px;
+  left: 300px;
+  width: 186px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.trackList {
+  position: absolute;
+  top: 380px;
+  left: 10px;
+  width: 760px;
+  height: 300px;
+  padding: 10px 0;
+  overflow-y: auto;
+  border: 10px solid #555;
+  border-radius: 20px;
+
+  .title {
+    padding: 0 10px;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .track {
+    width: 740px;
+    padding: 0 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    .left, .right {
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
+}
+
+input[type="range"]{
+  -webkit-appearance: none;
+  background: #888888;
+  height: 6px;
+  border-radius: 8px;
+}
+
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  width:25px;
+  height:15px;
+  border-radius: 8px;
+  border:1px solid black;
+
+  background: orange;
+}
+
+a {
+  color: black !important;
+}
