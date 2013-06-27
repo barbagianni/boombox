@@ -1,3 +1,3 @@
 define(['app/AudioContextPolyfill'], function () {
-    return new AudioContext();
+    return window.AudioContext && new window.AudioContext();
 });
