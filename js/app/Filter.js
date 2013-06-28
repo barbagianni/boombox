@@ -1,26 +1,32 @@
-define(['app/context', 'backbone'], function (context, Backbone) {
-    return Backbone.View({
-        className: 'filter',
+define(['app/context'], function (context) {
+    var QUALITY_MULTIPLIER = 30,
+        MAX_FREQUENCY = context.sampleRate / 2,
+        MIN_FREQUENCY = 40,
+        NUMBER_OF_OCTAVES = Math.log(MAX_FREQUENCY / MIN_FREQUENCY) / Math.LN2,
+        LOWPASS_FILTER = 0,
+        MAGIC_5000 = 5000;
 
-        events: {
-            'change input[name="frequency"]': 'adjustFrequency',
-            'change input[name="quality"]': 'adjustQuality'
-        },
+    var Filter = function () {
+        this.filter = context.createBiquadFilter();
+        this.filter.type = LOWPASS_FILTER;
+        this.filter.frequency.value = MAGIC_5000;
+    };
 
-        render: function () {
-            this.frequencySlider = $('<input type="range" name="frequency" min="40">');
-            this.frequencySlider.attr('max', context.sampleRate/2);
-            this.qualitySlider = $('<input type="range" name="quality">');
-            this.$el.append(this.frequencySlider);
-            this.$el.append(this.qualitySlider);
-        },
+    Filter.prototype.getNode = function () {
+        return this.filter;
+    };
 
-        adjustFrequency: function() {
-            var frequency = this.frequencySlider.val();
-        },
+    Filter.prototype.setFrequency = function (frequency) {
+        var multiplier = Math.pow(2, NUMBER_OF_OCTAVES * (frequency - 1.0));
+        this.filter.frequency.value = MAX_FREQUENCY * multiplier;
+    };
 
-        adjustQuality: function() {
-            var quality = this.qualitySlider.val();
-        }
-    });
+    Filter.prototype.setQuality = function (quality) {
+        this.filter.Q.value = quality * QUALITY_MULTIPLIER;
+    };
+
+    Filter.MAX_FREQUENCY = MAX_FREQUENCY;
+    Filter.MIN_FREQUENCY = MIN_FREQUENCY;
+
+    return  Filter;
 });
