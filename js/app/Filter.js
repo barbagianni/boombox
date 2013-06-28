@@ -3,13 +3,16 @@ define(['app/context'], function (context) {
         MAX_FREQUENCY = context.sampleRate / 2,
         MIN_FREQUENCY = 40,
         NUMBER_OF_OCTAVES = Math.log(MAX_FREQUENCY / MIN_FREQUENCY) / Math.LN2,
-        LOWPASS_FILTER = 0,
-        MAGIC_5000 = 5000;
+        LOWPASS_FILTER = 0;
 
+    /**
+     * @class app.Filter
+     * @constructor
+     */
     var Filter = function () {
         this.filter = context.createBiquadFilter();
         this.filter.type = LOWPASS_FILTER;
-        this.filter.frequency.value = MAGIC_5000;
+        this.filter.frequency.value = MAX_FREQUENCY;
     };
 
     Filter.prototype.getNode = function () {
