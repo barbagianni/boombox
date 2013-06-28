@@ -15,15 +15,25 @@ define(['app/context'], function (context) {
         this.filter.frequency.value = MAX_FREQUENCY;
     };
 
+    /**
+     * Returns the actual filter node.
+     * @returns {BiquadFilter}
+     */
     Filter.prototype.getNode = function () {
         return this.filter;
     };
 
+    /**
+     * @param frequency {number}
+     */
     Filter.prototype.setFrequency = function (frequency) {
         var multiplier = Math.pow(2, NUMBER_OF_OCTAVES * (frequency - 1.0));
         this.filter.frequency.value = MAX_FREQUENCY * multiplier;
     };
 
+    /**
+     * @param quality {number}
+     */
     Filter.prototype.setQuality = function (quality) {
         this.filter.Q.value = quality * QUALITY_MULTIPLIER;
     };
