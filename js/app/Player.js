@@ -11,7 +11,7 @@ define(['underscore', 'backbone'], function (_, Backbone) {
                 '</div></div></div>' +
                 '</div>' +
                 '<span class="pitch">Pitch</span>' +
-                '<input type="range" min="20" max="45" value="0">' +
+                '<input type="range" min="20" max="45" value="33" step="0.1">' +
                 '<div class="trackName"></div>' +
                 '<div class="artist"></div>' +
                 '<span class="play">&#9654;</span>'

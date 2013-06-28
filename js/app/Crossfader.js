@@ -1,4 +1,4 @@
-define(['app/LevelMeter', 'backbone'], function (LevelMeter, Backbone) {
+define(['app/LevelMeter', 'app/FilterControl', 'backbone'], function (LevelMeter, FilterControl, Backbone) {
     return Backbone.View.extend({
         className: 'crossfader',
         template: '<input type="range" min="0" max="100"><span class="leftPlayer">A</span><span class="rightPlayer">B</span>',
@@ -28,6 +28,17 @@ define(['app/LevelMeter', 'backbone'], function (LevelMeter, Backbone) {
 
             this.$el.append(levelA.el);
             this.$el.append(levelB.el);
+
+            var filterA = new FilterControl({
+                filter: this.trackA.getFilter()
+            }).render();
+            var filterB = new FilterControl({
+                filter: this.trackB.getFilter()
+            }).render();
+
+            this.$el.append(filterA.el);
+            this.$el.append(filterB.el);
+
             return this;
         },
 
