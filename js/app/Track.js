@@ -8,6 +8,7 @@ define(['app/context', 'app/Filter', 'underscore', 'backbone'], function (contex
         _.extend(this, Backbone.Events);
 
         this.source = null;
+        this.currentRequest = null;
         this.buffer = null;
         this.filter = new Filter();
         this.gainNode = context.createGain();
@@ -22,15 +23,20 @@ define(['app/context', 'app/Filter', 'underscore', 'backbone'], function (contex
     Track.prototype.load = function (url) {
         var self = this;
 
+        if (this.currentRequest) {
+            this.currentRequest.abort();
+        }
+
         this.stop();
         this.source = null;
         this.buffer = null;
 
-        var request = new XMLHttpRequest();
+        var request = this.currentRequest = new XMLHttpRequest();
         request.open("GET", url, true);
         request.responseType = "arraybuffer";
         request.onload = function() {
             context.decodeAudioData( request.response, function(buffer) {
+                self.currentRequest = null;
                 self.buffer = buffer;
                 self.trigger('load');
             });

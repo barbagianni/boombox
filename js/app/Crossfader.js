@@ -44,7 +44,7 @@ define(['app/LevelMeter', 'app/FilterControl', 'backbone'], function (LevelMeter
 
         fade: function () {
             var value = this.fader.val();
-            var normalizedPosition = parseInt(value) / parseInt(100);
+            var normalizedPosition = parseInt(value, 10) / parseInt(100, 10);
 
             var trackAgain = Math.cos(normalizedPosition * Math.PI/2);
             var trackBgain = Math.cos((1.0 - normalizedPosition) * Math.PI/2);
