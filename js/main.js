@@ -17,8 +17,10 @@ requirejs.config({
     }
 });
 
-requirejs(['app/config', 'app/Player', 'app/Crossfader', 'app/Track', 'app/Tracklist', 'jquery', 'domReady!', 'app/requestAnimationFramePolyfill'],
-    function (config, Player, Crossfader, Track, Tracklist, $) {
+requirejs([
+    'app/config', 'app/view/Player', 'app/view/Mixer', 'app/audio/Track', 'app/view/Tracklist', 'app/view/FileList', 'jquery', 'domReady!',
+    'app/misc/requestAnimationFramePolyfill'
+], function (config, Player, Crossfader, Track, Tracklist, FileList, $) {
     var body = $('body');
     if (!window.chrome) {
         body.append('<img src="http://cdn.meme.li/instances/300x300/38950801.jpg">');
@@ -34,7 +36,7 @@ requirejs(['app/config', 'app/Player', 'app/Crossfader', 'app/Track', 'app/Track
     var rightPlayer = new Player({
         track: trackB
     });
-    var turntables = [ leftPlayer, rightPlayer];
+    var turntables = [leftPlayer, rightPlayer];
 
     turntables.forEach(function(turntable) {
         $('body').append(turntable.render().el);
@@ -48,12 +50,17 @@ requirejs(['app/config', 'app/Player', 'app/Crossfader', 'app/Track', 'app/Track
     }
     requestAnimationFrame(step);
 
-    leftPlayer.loadTrack('sounds/Untitled.mp3', 'tors_o', 'Untitled', 'http://soundcloud.com/tors_o');
-    rightPlayer.loadTrack('sounds/ShifferTool.mp3', 'tors_o', 'Shiffer Tool', 'http://soundcloud.com/tors_o');
+    leftPlayer.loadTrackFromUrl('sounds/Untitled.mp3', 'tors_o', 'Untitled', 'http://soundcloud.com/tors_o');
+    rightPlayer.loadTrackFromUrl('sounds/ShifferTool.mp3', 'tors_o', 'Shiffer Tool', 'http://soundcloud.com/tors_o');
 
     body.append(new Crossfader({
         trackA: trackA,
         trackB: trackB
+    }).render().el);
+
+    body.append(new FileList({
+        leftPlayer: leftPlayer,
+        rightPlayer: rightPlayer
     }).render().el);
 
     SC.initialize({

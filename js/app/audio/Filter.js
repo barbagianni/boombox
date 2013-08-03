@@ -1,4 +1,4 @@
-define(['app/context'], function (context) {
+define(['app/misc/context'], function (context) {
     var QUALITY_MULTIPLIER = 30,
         MAX_FREQUENCY = context.sampleRate / 2,
         MIN_FREQUENCY = 40,

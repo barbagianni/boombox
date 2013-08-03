@@ -1,4 +1,4 @@
-define(['app/Track'], function (Track) {
+define(['app/audio/Track'], function (Track) {
     describe('Track', function () {
 
         it('plays a track', function () {
@@ -6,7 +6,7 @@ define(['app/Track'], function (Track) {
 
             track = new Track();
             hasLoaded = false;
-            track.load('../sounds/Untitled.mp3');
+            track.loadFromUrl('../sounds/Untitled.mp3');
             track.on('load', function () {
                 hasLoaded = true;
             });

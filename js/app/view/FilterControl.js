@@ -1,5 +1,4 @@
 define(['backbone'], function (Backbone) {
-
     return Backbone.View.extend({
         className: 'filter',
         template: '<span class="frequency">Hz</span><span class="quality">Q</span>',

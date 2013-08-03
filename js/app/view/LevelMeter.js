@@ -1,4 +1,4 @@
-define(['app/context', 'backbone', 'underscore'], function (context, Backbone, _) {
+define(['app/misc/context', 'backbone', 'underscore'], function (context, Backbone, _) {
     return Backbone.View.extend({
         className: 'levelMeter',
         playing: false,

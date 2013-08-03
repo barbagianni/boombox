@@ -1,4 +1,4 @@
-define(['app/context', 'app/Filter', 'underscore', 'backbone'], function (context, Filter, _, Backbone) {
+define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], function (context, Filter, _, Backbone) {
     /**
      * Abstraction for loading and playing audio through the Web Audio API
      * @class app.Track
@@ -9,6 +9,7 @@ define(['app/context', 'app/Filter', 'underscore', 'backbone'], function (contex
 
         this.source = null;
         this.currentRequest = null;
+        this.fileReader = null;
         this.buffer = null;
         this.filter = new Filter();
         this.gainNode = context.createGain();
@@ -20,18 +21,12 @@ define(['app/context', 'app/Filter', 'underscore', 'backbone'], function (contex
      * Load music into a buffer.
      * @param url {string}
      */
-    Track.prototype.load = function (url) {
-        var self = this;
+    Track.prototype.loadFromUrl = function (url) {
+        var self = this,
+            request = this.currentRequest = new XMLHttpRequest();
 
-        if (this.currentRequest) {
-            this.currentRequest.abort();
-        }
+        this._abortLoad();
 
-        this.stop();
-        this.source = null;
-        this.buffer = null;
-
-        var request = this.currentRequest = new XMLHttpRequest();
         request.open("GET", url, true);
         request.responseType = "arraybuffer";
         request.onload = function() {
@@ -42,6 +37,42 @@ define(['app/context', 'app/Filter', 'underscore', 'backbone'], function (contex
             });
         };
         request.send();
+    };
+
+    /**
+     * Load music into a buffer.
+     * @param file {File}
+     */
+    Track.prototype.loadFromFile = function (file) {
+        var self = this,
+            fileReader = this.fileReader = new FileReader();
+
+        this._abortLoad();
+
+        fileReader.onload = function(event) {
+            context.decodeAudioData( event.target.result, function(buffer) {
+                self.fileReader = null;
+                self.buffer = buffer;
+                self.trigger('load');
+            });
+        };
+        fileReader.readAsArrayBuffer(file);
+    };
+
+    Track.prototype._abortLoad = function () {
+
+        if (this.fileReader) {
+            this.fileReader.abort();
+            this.fileReader = null;
+        }
+        if (this.currentRequest) {
+            this.currentRequest.abort();
+            this.currentRequest = null;
+        }
+
+        this.stop();
+        this.source = null;
+        this.buffer = null;
     };
 
     /**

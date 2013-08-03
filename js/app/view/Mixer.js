@@ -1,4 +1,4 @@
-define(['app/LevelMeter', 'app/FilterControl', 'backbone'], function (LevelMeter, FilterControl, Backbone) {
+define(['app/view/LevelMeter', 'app/view/FilterControl', 'backbone'], function (LevelMeter, FilterControl, Backbone) {
     return Backbone.View.extend({
         className: 'crossfader',
         template: '<input type="range" min="0" max="100"><span class="leftPlayer">A</span><span class="rightPlayer">B</span>',

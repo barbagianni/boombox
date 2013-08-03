@@ -1,4 +1,4 @@
-define(['app/Player', 'app/Track'], function (Player, Track) {
+define(['app/view/Player', 'app/audio/Track'], function (Player, Track) {
     describe('Player', function () {
         var track, player, canvas, hasLoaded;
 
@@ -7,7 +7,7 @@ define(['app/Player', 'app/Track'], function (Player, Track) {
             player = new Player({
                 track: track
             });
-            track.load('../sounds/Untitled.mp3');
+            track.loadFromUrl('../sounds/Untitled.mp3');
 
             hasLoaded = false;
             track.on('load', function () {hasLoaded = true;});

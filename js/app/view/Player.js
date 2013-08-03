@@ -61,13 +61,23 @@ define(['underscore', 'backbone'], function (_, Backbone) {
             plate.css('-webkit-transform', 'rotate(' + this.rotation + 'rad)');
         },
 
-        loadTrack: function (url, artist, trackName, backLink) {
-            this.track.load(url);
+        loadTrackFromUrl: function (url, artist, trackName, backLink) {
+            this.track.loadFromUrl(url);
             this.$el.find('.trackName').html(this.trackTemplate({
                 trackName: trackName,
                 backLink: backLink
             }));
             this.$el.find('.artist').text(artist);
+            this.$el.addClass('disabled');
+        },
+
+        loadTrackFromFile: function (file) {
+            this.track.loadFromFile(file);
+            this.$el.find('.trackName').html(this.trackTemplate({
+                trackName: file.name,
+                backLink: ''
+            }));
+            this.$el.find('.artist').text('');
             this.$el.addClass('disabled');
         },
 

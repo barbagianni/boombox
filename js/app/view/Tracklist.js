@@ -39,7 +39,7 @@ define(['app/config', 'backbone', 'underscore'], function (config, Backbone, _) 
             var trackName = trackData.title;
             var artist = trackData.user.username;
             var backLink = trackData.permalink_url;
-            this.left.loadTrack(url, artist, trackName, backLink);
+            this.left.loadTrackFromUrl(url, artist, trackName, backLink);
         },
 
         playRight: function (event) {
@@ -48,7 +48,7 @@ define(['app/config', 'backbone', 'underscore'], function (config, Backbone, _) 
             var trackName = trackData.title;
             var artist = trackData.user.username;
             var backLink = trackData.permalink_url;
-            this.right.loadTrack(url, artist, trackName, backLink);
+            this.right.loadTrackFromUrl(url, artist, trackName, backLink);
         }
     });
 });
