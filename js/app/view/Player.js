@@ -1,4 +1,4 @@
-define(['underscore', 'backbone'], function (_, Backbone) {
+define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, Backbone) {
     return Backbone.View.extend({
         className: 'player',
 
@@ -35,10 +35,12 @@ define(['underscore', 'backbone'], function (_, Backbone) {
             this.track.on('load', function () {
                 this.$el.removeClass('disabled');
             }, this);
+            this.waveform = new Waveform({track: this.track});
         },
 
         render: function () {
             this.$el.append(this.template());
+            this.$el.prepend(this.waveform.render().el);
             this.speedSlider = this.$el.find('input[type="range"]');
             this.speedSlider.val(this.rpm);
             return this;
