@@ -51,7 +51,7 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
             this.track.setPlaybackRate(this.rpm/33);
         },
 
-        turn: function (now) {
+        update: function (now) {
             if (!this.track.isPlaying()) return;
             if (!this.lastTime) {
                 this.lastTime = now;
@@ -61,6 +61,8 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
             this.lastTime = now;
             var plate = this.$el.find('.plate');
             plate.css('-webkit-transform', 'rotate(' + this.rotation + 'rad)');
+
+            this.waveform.updatePosition();
         },
 
         loadTrackFromUrl: function (url, artist, trackName, backLink) {

@@ -1,11 +1,16 @@
 define(['backbone'], function (Backbone) {
+    var CANVAS_HEIGHT = 50,
+        CANVAS_WIDTH = 230;
+
     return Backbone.View.extend({
         className: 'waveform',
-        template: '<canvas height="50" width="230"></canvas>',
+        template: '<div class="position"></div><canvas height="' + CANVAS_HEIGHT +
+            '" width="' + CANVAS_WIDTH + '"></canvas>',
 
         initialize: function (options) {
             var self = this;
-            options.track.on('load', function () {
+            this.track = options.track;
+            this.track.on('load', function () {
                 self.drawWaveformFromBuffer(this.buffer);
             });
         },
@@ -16,6 +21,11 @@ define(['backbone'], function (Backbone) {
             this.context = this.canvas.getContext('2d');
             // TODO adjust to high DPI screens
             return this;
+        },
+
+        updatePosition: function () {
+            this.$('.position').css('left',
+                this.track.currentPosition() * CANVAS_WIDTH + 'px');
         },
 
         clear: function () {
@@ -29,19 +39,18 @@ define(['backbone'], function (Backbone) {
                 subSamples = 10,
                 frameSize = buffer.length / width / subSamples,
                 channelData = buffer.getChannelData(0),
-                ctx = this.context,
                 middle = this.canvas.height/2,
                 sample;
 
-            ctx.beginPath();
-            ctx.moveTo(x, middle);
+            this.context.beginPath();
+            this.context.moveTo(x, middle);
 
             for(var x = 0; x <= width * subSamples; x++) {
                 sample = channelData[Math.floor(x*frameSize)];
-                ctx.lineTo(x / subSamples, (sample * middle) + middle);
+                this.context.lineTo(x / subSamples, (sample * middle) + middle);
             }
 
-            ctx.stroke();
+            this.context.stroke();
         }
     });
 });

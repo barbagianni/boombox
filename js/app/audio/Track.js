@@ -11,6 +11,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.currentRequest = null;
         this.fileReader = null;
         this.buffer = null;
+        this.bufferPosition = null;
         this.filter = new Filter();
         this.gainNode = context.createGain();
         this.filter.getNode().connect(this.gainNode);
@@ -87,9 +88,12 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
             this.source = context.createBufferSource();
             this.source.connect(this.filter.getNode());
             this.source.buffer = this.buffer;
-            this.source.playbackRate.setValueAtTime( 0.001, now );
-            this.source.playbackRate.linearRampToValueAtTime( rate, now + 1 );
-            this.source.noteOn(0);
+            this.source.playbackRate.setValueAtTime( rate, now );
+            this.source.noteOn(now);
+            this.bufferPosition = {
+                position: 0,
+                globalTime: now
+            };
             this.trigger('play');
         }
     };
@@ -103,6 +107,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
             this.source.noteOff(0);
             this.source.disconnect(0);
             this.source = null;
+            this.bufferPosition = null;
         }
     };
 
@@ -120,6 +125,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
      */
     Track.prototype.setPlaybackRate = function (rate) {
         if (this.isPlaying()) {
+            this.updateBufferPosition();
             this.source.playbackRate.setValueAtTime(rate, context.currentTime);
         }
     };
@@ -138,6 +144,31 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
      */
     Track.prototype.getFilter = function () {
         return this.filter;
+    };
+
+    /**
+     * Current playback position in the track, whereas 0 is the start and 1 is the end.
+     * @returns {number}
+     */
+    Track.prototype.currentPosition = function () {
+        if (this.bufferPosition === null || !this.buffer) {
+            return 0;
+        }
+        this.updateBufferPosition();
+        return Math.min(this.bufferPosition.position / this.buffer.duration, 1);
+    };
+
+    /**
+     * updates the current playback position in the buffer.
+     */
+    Track.prototype.updateBufferPosition = function () {
+        if (!this.bufferPosition) {return;}
+        this.bufferPosition = {
+            position: this.bufferPosition.position +
+                (context.currentTime - this.bufferPosition.globalTime) *
+                this.source.playbackRate.value,
+            globalTime: context.currentTime
+        };
     };
 
     return Track;
