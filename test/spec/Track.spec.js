@@ -26,7 +26,7 @@ define(['app/audio/Track'], function (Track) {
 
         it('doesn\'t start playback while loading', function () {
             var track = new Track();
-            track.load('../sounds/Untitled.mp3');
+            track.loadFromUrl('../sounds/Untitled.mp3');
             expect(track.isPlaying()).toBe(false);
             track.start();
             expect(track.isPlaying()).toBe(false);
