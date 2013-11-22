@@ -27,8 +27,8 @@ requirejs([
         return;
     }
 
-    var trackA = window.tracka = new Track(),
-        trackB = window.trackb = new Track();
+    var trackA = new Track(),
+        trackB = new Track();
 
     var leftPlayer = new Player({
         track: trackA
@@ -46,8 +46,6 @@ requirejs([
         turntables.forEach(function(turntable) {
             turntable.update(now);
         });
-        console.log('A', trackA.currentPosition());
-        console.log('B', trackB.currentPosition());
         requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
