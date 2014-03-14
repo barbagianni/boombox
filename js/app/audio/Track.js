@@ -16,7 +16,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.gainNode = context.createGain();
         this.filter.getNode().connect(this.gainNode);
         this.gainNode.connect(context.destination);
-        this.modifier = 1;
+        this.playbackSpeedModifier = 1;
     }
 
     /**
@@ -35,6 +35,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
             context.decodeAudioData( request.response, function(buffer) {
                 self.currentRequest = null;
                 self.buffer = buffer;
+                self.reversedBuffer = self._reverseBuffer(buffer);
                 self.trigger('load');
             });
         };
@@ -55,6 +56,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
             context.decodeAudioData( event.target.result, function(buffer) {
                 self.fileReader = null;
                 self.buffer = buffer;
+                self.reversedBuffer = self._reverseBuffer(buffer);
                 self.trigger('load');
             });
         };
@@ -76,7 +78,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.source = null;
         this.buffer = null;
         this.bufferPosition = null;
-        this.modifier = 1;
+        this.playbackSpeedModifier = 1;
     };
 
     /**
@@ -89,16 +91,11 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
             throw new Error('Can only play a track that is not currently playing');
         }
         if (this.buffer) {
-            var now = context.currentTime;
-            this.source = context.createBufferSource();
-            this.source.connect(this.filter.getNode());
-            this.source.buffer = this.buffer;
-            this.source.start(now);
             this.bufferPosition = {
                 position: 0,
-                globalTime: now
+                globalTime: context.currentTime
             };
-            this.trigger('play');
+            this._setupSourceAndPlay();
         }
     };
 
@@ -112,13 +109,35 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         if (!this.buffer || !this.bufferPosition) {
             throw new Error('Can only resume a track that has been played before');
         }
+        this.bufferPosition.globalTime = context.currentTime;
+        this._setupSourceAndPlay();
+    };
+
+    Track.prototype._setupSourceAndPlay = function () {
         var now = context.currentTime;
         this.source = context.createBufferSource();
         this.source.connect(this.filter.getNode());
-        this.source.buffer = this.buffer;
-        this.source.start(now, this.bufferPosition.position);
-        this.bufferPosition.globalTime = now;
+        var forwardPlayback = this.playbackSpeedModifier >= 0;
+        this.source.buffer = forwardPlayback ? this.buffer : this.reversedBuffer;
+        this.source.start(now, forwardPlayback ? this.bufferPosition.position :
+            this.buffer.duration - this.bufferPosition.position);
         this.trigger('play');
+    };
+
+    Track.prototype._reverseBuffer = function (buffer) {
+        var length = buffer.length,
+            reversedBuffer = context.createBuffer(buffer.numberOfChannels, length, buffer.sampleRate),
+            origChannelData,
+            reversedChannelData;
+
+        for (var i = 0; i < buffer.numberOfChannels; i++) {
+            origChannelData = buffer.getChannelData(i);
+            reversedChannelData = reversedBuffer.getChannelData(i);
+            for (var j = 0; j < length; j++) {
+                reversedChannelData[length - j - 1] = origChannelData[j];
+            }
+        }
+        return reversedBuffer;
     };
 
     /**
@@ -165,11 +184,11 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
      */
     Track.prototype.setPlaybackModifier = function (modifier) {
         this.updateBufferPosition();
-        var lastModifier = this.modifier;
+        var lastModifier = this.playbackSpeedModifier;
         if (modifier === 0) {
             modifier = Number.MIN_VALUE;
         }
-        this.modifier = modifier;
+        this.playbackSpeedModifier = modifier;
         if (lastModifier < 0 && modifier >= 0 || lastModifier >= 0 && modifier < 0) {
             this.stop();
             this.resume();
@@ -213,7 +232,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.bufferPosition = {
             position: this.bufferPosition.position +
                 (context.currentTime - this.bufferPosition.globalTime) *
-                this.modifier,
+                this.playbackSpeedModifier,
             globalTime: context.currentTime
         };
     };
