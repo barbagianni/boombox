@@ -16,6 +16,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.gainNode = context.createGain();
         this.filter.getNode().connect(this.gainNode);
         this.gainNode.connect(context.destination);
+        this.modifier = 1;
     }
 
     /**
@@ -75,6 +76,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.source = null;
         this.buffer = null;
         this.bufferPosition = null;
+        this.modifier = 1;
     };
 
     /**
@@ -139,6 +141,10 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         return !!this.source;
     };
 
+    /**
+     * Checks if track was playing before.
+     * @returns {boolean}
+     */
     Track.prototype.wasPlaying = function () {
         return !!this.bufferPosition;
     };
@@ -149,9 +155,26 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
      */
     Track.prototype.setPlaybackRate = function (rate) {
         if (this.isPlaying()) {
-            this.updateBufferPosition();
-            this.source.playbackRate.setValueAtTime(rate, context.currentTime);
+            this.setPlaybackModifier(rate);
         }
+    };
+
+    /**
+     * Set the playback rate. A rate of 1 is normal playback.
+     * @param modifier {number}
+     */
+    Track.prototype.setPlaybackModifier = function (modifier) {
+        this.updateBufferPosition();
+        var lastModifier = this.modifier;
+        if (modifier === 0) {
+            modifier = Number.MIN_VALUE;
+        }
+        this.modifier = modifier;
+        if (lastModifier < 0 && modifier >= 0 || lastModifier >= 0 && modifier < 0) {
+            this.stop();
+            this.resume();
+        }
+        this.source.playbackRate.setValueAtTime(Math.abs(modifier), context.currentTime);
     };
 
     /**
@@ -190,7 +213,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.bufferPosition = {
             position: this.bufferPosition.position +
                 (context.currentTime - this.bufferPosition.globalTime) *
-                this.source.playbackRate.value,
+                this.modifier,
             globalTime: context.currentTime
         };
     };

@@ -8,7 +8,7 @@ define(['app/misc/context', 'backbone', 'underscore'], function (context, Backbo
             this.analyser.smoothingTimeConstant = 0.5;
             this.analyser.fftSize = 1024;
 
-            this.jsNode = context.createJavaScriptNode(2048, 1, 1);
+            this.jsNode = context.createScriptProcessor(2048, 1, 1);
             this.jsNode.onaudioprocess = this.processAudio.bind(this);
             this.jsNode.connect(context.destination);
             this.analyser.connect(this.jsNode);

@@ -7,7 +7,7 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
         template: _.template(
             '<div class="plate">' +
                 '<div class="ring"><div class="ring"><div class="ring">' +
-                '<div class="logo">BOOM<br>BOX!</div>' +
+                '<div class="logo"> ___<br/>{o,o}<br/>|)__)<br/>-"-"-</div>' +
                 '</div></div></div>' +
                 '</div>' +
                 '<span class="pitch">Pitch</span>' +

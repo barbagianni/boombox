@@ -18,25 +18,21 @@ requirejs.config({
 });
 
 requirejs([
-    'app/config', 'app/view/Player', 'app/view/Mixer', 'app/audio/Track', 'app/view/Tracklist', 'app/view/FileList', 'jquery', 'domReady!',
-    'app/misc/requestAnimationFramePolyfill'
-], function (config, Player, Crossfader, Track, Tracklist, FileList, $) {
-    var body = $('body');
-    if (!window.chrome) {
-        //body.append('<img src="http://cdn.meme.li/instances/300x300/38950801.jpg">');
-        //return;
-    }
-
-    var trackA = new Track(),
-        trackB = new Track();
-
-    var leftPlayer = new Player({
-        track: trackA
-    });
-    var rightPlayer = new Player({
-        track: trackB
-    });
-    var turntables = [leftPlayer, rightPlayer];
+    'app/config', 'app/view/Player', 'app/view/Mixer', 'app/audio/Track', 'app/view/Tracklist', 'app/view/FileList',
+    'app/midi/midiContext', 'jquery', 'domReady!', 'app/misc/requestAnimationFramePolyfill'
+], function (
+    config, Player, Crossfader, Track, Tracklist, FileList, midi, $
+) {
+    var body = $('body'),
+        trackA = new Track(),
+        trackB = new Track(),
+        leftPlayer = new Player({
+            track: trackA
+        }),
+        rightPlayer = new Player({
+            track: trackB
+        }),
+        turntables = [leftPlayer, rightPlayer];
 
     turntables.forEach(function(turntable) {
         $('body').append(turntable.render().el);
@@ -84,6 +80,14 @@ requirejs([
                 });
             });
         });
+    });
+
+    midi.registerAction('903c62', function () {
+        leftPlayer.togglePlayback();
+    });
+
+    midi.registerAction('903e62', function () {
+        rightPlayer.togglePlayback();
     });
 
     body.append(connect);
