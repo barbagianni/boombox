@@ -34,6 +34,7 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
             }, this);
             this.track.on('load', function () {
                 this.$el.removeClass('disabled');
+                this.waveform.updatePosition();
             }, this);
             this.waveform = new Waveform({track: this.track});
         },
@@ -86,10 +87,14 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
         },
 
         togglePlayback: function () {
-            if (!this.track.isPlaying()) {
-                this.track.start(this.rpm/33);
-            } else {
+            if (this.track.isPlaying()) {
                 this.track.stop();
+            } else if (!this.track.wasPlaying()) {
+                this.track.start();
+                this.setSpeed();
+            } else {
+                this.track.resume();
+                this.setSpeed();
             }
         }
     });

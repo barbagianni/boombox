@@ -74,22 +74,24 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.stop();
         this.source = null;
         this.buffer = null;
+        this.bufferPosition = null;
     };
 
     /**
      * Create a new source for playback and connect it to the sink (filter->gain->destination).
      *
      * Ramps up playback to given speed within one second.
-     * @param rate {number}
      */
-    Track.prototype.start = function (rate) {
+    Track.prototype.start = function () {
+        if (this.isPlaying()) {
+            throw new Error('Can only play a track that is not currently playing');
+        }
         if (this.buffer) {
             var now = context.currentTime;
             this.source = context.createBufferSource();
             this.source.connect(this.filter.getNode());
             this.source.buffer = this.buffer;
-            this.source.playbackRate.setValueAtTime( rate, now );
-            this.source.noteOn(now);
+            this.source.start(now);
             this.bufferPosition = {
                 position: 0,
                 globalTime: now
@@ -99,15 +101,33 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
     };
 
     /**
+     * Resume the current track from the last known position.
+     */
+    Track.prototype.resume = function () {
+        if (this.isPlaying()) {
+            throw new Error('Can only resume a track that is not currently playing');
+        }
+        if (!this.buffer || !this.bufferPosition) {
+            throw new Error('Can only resume a track that has been played before');
+        }
+        var now = context.currentTime;
+        this.source = context.createBufferSource();
+        this.source.connect(this.filter.getNode());
+        this.source.buffer = this.buffer;
+        this.source.start(now, this.bufferPosition.position);
+        this.bufferPosition.globalTime = now;
+        this.trigger('play');
+    };
+
+    /**
      * Stop playback and disconnect the buffered source.
      */
     Track.prototype.stop = function () {
         if (this.isPlaying()) {
             this.trigger('stop');
-            this.source.noteOff(0);
+            this.source.stop(0);
             this.source.disconnect(0);
             this.source = null;
-            this.bufferPosition = null;
         }
     };
 
@@ -117,6 +137,10 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
      */
     Track.prototype.isPlaying = function () {
         return !!this.source;
+    };
+
+    Track.prototype.wasPlaying = function () {
+        return !!this.bufferPosition;
     };
 
     /**

@@ -23,8 +23,8 @@ requirejs([
 ], function (config, Player, Crossfader, Track, Tracklist, FileList, $) {
     var body = $('body');
     if (!window.chrome) {
-        body.append('<img src="http://cdn.meme.li/instances/300x300/38950801.jpg">');
-        return;
+        //body.append('<img src="http://cdn.meme.li/instances/300x300/38950801.jpg">');
+        //return;
     }
 
     var trackA = new Track(),
