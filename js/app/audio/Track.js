@@ -186,14 +186,15 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.updateBufferPosition();
         var lastModifier = this.playbackSpeedModifier;
         if (modifier === 0) {
-            modifier = Number.MIN_VALUE;
+            modifier = 0.0001;
         }
         this.playbackSpeedModifier = modifier;
         if (lastModifier < 0 && modifier >= 0 || lastModifier >= 0 && modifier < 0) {
             this.stop();
             this.resume();
         }
-        this.source.playbackRate.setValueAtTime(Math.abs(modifier), context.currentTime);
+        var number = Math.abs(modifier);
+        this.source.playbackRate.setValueAtTime(number, context.currentTime);
     };
 
     /**

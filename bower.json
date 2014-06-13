@@ -1,0 +1,25 @@
+{
+  "name": "boombox",
+  "version": "0.0.1",
+  "homepage": "https://github.com/letier/boombox",
+  "authors": [
+    "David <davidmm@gmail.com>"
+  ],
+  "description": "A browser base DJ mixing software.",
+  "main": "index.html",
+  "keywords": [
+    "webaudio",
+    "webmidi"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "webmidi": "../webmidi/"
+  }
+}
