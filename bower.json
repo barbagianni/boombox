@@ -20,6 +20,6 @@
     "tests"
   ],
   "dependencies": {
-    "webmidi": "../webmidi/"
+    "webmidi": "*"
   }
 }
