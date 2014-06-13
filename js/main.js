@@ -2,19 +2,11 @@ requirejs.config({
     baseUrl: 'js/lib',
     paths: {
         app: '../app',
-        midi: 'webmidi/Midi'
-    },
-    shim: {
-        jquery: {
-            exports: 'jQuery'
-        },
-        underscore: {
-            exports: '_'
-        },
-        backbone: {
-            deps: ['underscore', 'jquery'],
-            exports: 'Backbone'
-        }
+        midi: 'webmidi/Midi',
+        backbone: 'backbone/backbone',
+        underscore: 'underscore/underscore',
+        jquery: 'jquery/dist/jquery',
+        domReady: 'requirejs-domready/domReady'
     }
 });
 

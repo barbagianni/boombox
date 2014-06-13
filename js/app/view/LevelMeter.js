@@ -3,7 +3,7 @@ define(['app/misc/context', 'backbone', 'underscore'], function (context, Backbo
         className: 'levelMeter',
         playing: false,
 
-        initialize: function () {
+        initialize: function (options) {
             this.analyser = context.createAnalyser();
             this.analyser.smoothingTimeConstant = 0.5;
             this.analyser.fftSize = 1024;
@@ -13,7 +13,7 @@ define(['app/misc/context', 'backbone', 'underscore'], function (context, Backbo
             this.jsNode.connect(context.destination);
             this.analyser.connect(this.jsNode);
 
-            this.track = this.options.track;
+            this.track = options.track;
             this.track.on('play', this.connect, this);
             this.track.on('stop', this.disconnect, this);
         },

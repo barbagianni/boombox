@@ -20,6 +20,11 @@
     "tests"
   ],
   "dependencies": {
-    "webmidi": "*"
+    "webmidi": "*",
+    "backbone": "~1.1.2",
+    "jquery": "~2.1.1",
+    "requirejs": "~2.1.14",
+    "requirejs-domready": "~2.0.1",
+    "less": "~1.7.1"
   }
 }
