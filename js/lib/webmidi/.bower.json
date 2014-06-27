@@ -1,0 +1,30 @@
+{
+  "name": "webmidi",
+  "authors": [
+    "David <davidmm@gmail.com>"
+  ],
+  "description": "A library to map Web MIDI input onto function calls.",
+  "main": "Midi.js",
+  "keywords": [
+    "webmidi",
+    "midi"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "homepage": "https://github.com/letier/webmidi",
+  "_release": "53c1980008",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "53c19800089e00dc29904f1fec04ce25c4283793"
+  },
+  "_source": "git://github.com/letier/webmidi.git",
+  "_target": "*",
+  "_originalSource": "webmidi"
+}

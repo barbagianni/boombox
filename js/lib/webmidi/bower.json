@@ -1,0 +1,21 @@
+{
+  "name": "webmidi",
+  "version": "0.0.1",
+  "authors": [
+    "David <davidmm@gmail.com>"
+  ],
+  "description": "A library to map Web MIDI input onto function calls.",
+  "main": "Midi.js",
+  "keywords": [
+    "webmidi",
+    "midi"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
