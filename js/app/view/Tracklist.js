@@ -14,10 +14,10 @@ define(['app/config', 'backbone', 'underscore'], function (config, Backbone, _) 
             'click .right': 'playRight'
         },
 
-        initialize: function () {
+        initialize: function (options) {
             this.model.on('add', this.addItem, this);
-            this.left = this.options.leftPlayer;
-            this.right = this.options.rightPlayer;
+            this.left = options.leftPlayer;
+            this.right = options.rightPlayer;
         },
 
         addItem: function (item) {

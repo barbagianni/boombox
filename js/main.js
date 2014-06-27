@@ -1,42 +1,31 @@
 requirejs.config({
     baseUrl: 'js/lib',
     paths: {
-        app: '../app'
-    },
-    shim: {
-        jquery: {
-            exports: 'jQuery'
-        },
-        underscore: {
-            exports: '_'
-        },
-        backbone: {
-            deps: ['underscore', 'jquery'],
-            exports: 'Backbone'
-        }
+        app: '../app',
+        midi: 'webmidi/Midi',
+        backbone: 'backbone/backbone',
+        underscore: 'underscore/underscore',
+        jquery: 'jquery/dist/jquery',
+        domReady: 'requirejs-domready/domReady'
     }
 });
 
 requirejs([
-    'app/config', 'app/view/Player', 'app/view/Mixer', 'app/audio/Track', 'app/view/Tracklist', 'app/view/FileList', 'jquery', 'domReady!',
-    'app/misc/requestAnimationFramePolyfill'
-], function (config, Player, Crossfader, Track, Tracklist, FileList, $) {
-    var body = $('body');
-    if (!window.chrome) {
-        body.append('<img src="http://cdn.meme.li/instances/300x300/38950801.jpg">');
-        return;
-    }
-
-    var trackA = new Track(),
-        trackB = new Track();
-
-    var leftPlayer = new Player({
-        track: trackA
-    });
-    var rightPlayer = new Player({
-        track: trackB
-    });
-    var turntables = [leftPlayer, rightPlayer];
+    'app/config', 'app/view/Player', 'app/view/Mixer', 'app/audio/Track', 'app/view/Tracklist', 'app/view/FileList',
+    'app/midi/midiContext', 'jquery', 'domReady!', 'app/misc/requestAnimationFramePolyfill'
+], function (
+    config, Player, Crossfader, Track, Tracklist, FileList, midiContext, $
+) {
+    var body = $('body'),
+        trackA = new Track(),
+        trackB = new Track(),
+        leftPlayer = new Player({
+            track: trackA
+        }),
+        rightPlayer = new Player({
+            track: trackB
+        }),
+        turntables = [leftPlayer, rightPlayer];
 
     turntables.forEach(function(turntable) {
         $('body').append(turntable.render().el);
@@ -85,6 +74,52 @@ requirejs([
             });
         });
     });
+
+    midiContext.registerAction('903c62', function () {
+        leftPlayer.togglePlayback();
+    });
+
+    midiContext.registerAction('903e62', function () {
+        rightPlayer.togglePlayback();
+    });
+
+    var wheelA = 0,
+        wheelB = 0,
+        wheelApushed = false,
+        wheelBpushed = false;
+    midiContext.registerAction('b00201', function () {
+        wheelA += wheelApushed ? 0.1 : 0.05;
+    });
+    midiContext.registerAction('b10201', function () {
+        wheelB += wheelBpushed ? 0.1 : 0.05;
+    });
+    midiContext.registerAction('b0027f', function () {
+        wheelA -= wheelApushed ? 0.1 : 0.05;
+    });
+    midiContext.registerAction('b1027f', function () {
+        wheelB -= wheelBpushed ? 0.1 : 0.05;
+    });
+    midiContext.registerAction('b0037f', function () {
+        wheelApushed = true;
+    });
+    midiContext.registerAction('b1037f', function () {
+        wheelBpushed = true;
+    });
+    midiContext.registerAction('b00300', function () {
+        wheelApushed = false;
+    });
+    midiContext.registerAction('b10300', function () {
+        wheelBpushed = false;
+    });
+
+    function wheely() {
+        leftPlayer.wheel(wheelA, wheelApushed);
+        rightPlayer.wheel(wheelB, wheelBpushed);
+        wheelA = 0;
+        wheelB = 0;
+        setTimeout(wheely, 50);
+    }
+    wheely();
 
     body.append(connect);
 });

@@ -7,7 +7,7 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
         template: _.template(
             '<div class="plate">' +
                 '<div class="ring"><div class="ring"><div class="ring">' +
-                '<div class="logo">BOOM<br>BOX!</div>' +
+                '<div class="logo"> ___<br/>{o,o}<br/>|)__)<br/>-"-"-</div>' +
                 '</div></div></div>' +
                 '</div>' +
                 '<span class="pitch">Pitch</span>' +
@@ -20,6 +20,7 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
         rpm: 33,
         lastTime: null,
         rotation: 0,
+        wheelActive: false,
 
         events: {
             'change input[type="range"]': 'setSpeed',
@@ -34,6 +35,7 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
             }, this);
             this.track.on('load', function () {
                 this.$el.removeClass('disabled');
+                this.waveform.updatePosition();
             }, this);
             this.waveform = new Waveform({track: this.track});
         },
@@ -46,9 +48,24 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
             return this;
         },
 
-        setSpeed: function () {
-            this.rpm = parseFloat(this.speedSlider.val());
+        setSpeed: function (val) {
+            if (typeof val === 'number') {
+                this.rpm = val;
+            } else {
+                this.rpm = parseFloat(this.speedSlider.val());
+            }
             this.track.setPlaybackRate(this.rpm/33);
+        },
+
+        wheel: function (amount, pushed) {
+            if (amount !== 0 || pushed || this.wheelActive) {
+                this.setSpeed((pushed ? 0 : this.rpm / 33) + amount);
+                this.wheelActive = true;
+            }
+            if (!amount && !pushed) {
+                this.wheelActive = false;
+                this.setSpeed();
+            }
         },
 
         update: function (now) {
@@ -86,10 +103,14 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
         },
 
         togglePlayback: function () {
-            if (!this.track.isPlaying()) {
-                this.track.start(this.rpm/33);
-            } else {
+            if (this.track.isPlaying()) {
                 this.track.stop();
+            } else if (!this.track.wasPlaying()) {
+                this.track.start();
+                this.setSpeed();
+            } else {
+                this.track.resume();
+                this.setSpeed();
             }
         }
     });

@@ -9,25 +9,18 @@
     <script type="text/javascript" src="lib/jasmine-1.3.1/jasmine.js"></script>
     <script type="text/javascript" src="lib/jasmine-1.3.1/jasmine-html.js"></script>
 
-    <script type="text/javascript" src="../js/lib/require.js"></script>
+    <script type="text/javascript" src="../js/lib/requirejs/require.js"></script>
     <script type="text/javascript">
         requirejs.config({
             baseUrl: '../js/lib',
             paths: {
+                spec: '../../test/spec',
                 app: '../app',
-                spec: '../../test/spec'
-            },
-            shim: {
-                jquery: {
-                    exports: 'jQuery'
-                },
-                underscore: {
-                    exports: '_'
-                },
-                backbone: {
-                    deps: ['underscore', 'jquery'],
-                    exports: 'Backbone'
-                }
+                midi: 'webmidi/Midi',
+                backbone: 'backbone/backbone',
+                underscore: 'underscore/underscore',
+                jquery: 'jquery/dist/jquery',
+                domReady: 'requirejs-domready/domReady'
             }
         });
 

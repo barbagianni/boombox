@@ -16,9 +16,9 @@ define(['backbone'], function (Backbone) {
             'click .right': 'playRight'
         },
 
-        initialize: function () {
-            this.left = this.options.leftPlayer;
-            this.right = this.options.rightPlayer;
+        initialize: function (options) {
+            this.left = options.leftPlayer;
+            this.right = options.rightPlayer;
         },
 
         render: function () {

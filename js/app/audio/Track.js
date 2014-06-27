@@ -16,6 +16,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.gainNode = context.createGain();
         this.filter.getNode().connect(this.gainNode);
         this.gainNode.connect(context.destination);
+        this.playbackSpeedModifier = 1;
     }
 
     /**
@@ -34,6 +35,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
             context.decodeAudioData( request.response, function(buffer) {
                 self.currentRequest = null;
                 self.buffer = buffer;
+                self.reversedBuffer = self._reverseBuffer(buffer);
                 self.trigger('load');
             });
         };
@@ -54,6 +56,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
             context.decodeAudioData( event.target.result, function(buffer) {
                 self.fileReader = null;
                 self.buffer = buffer;
+                self.reversedBuffer = self._reverseBuffer(buffer);
                 self.trigger('load');
             });
         };
@@ -74,28 +77,67 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.stop();
         this.source = null;
         this.buffer = null;
+        this.bufferPosition = null;
+        this.playbackSpeedModifier = 1;
     };
 
     /**
      * Create a new source for playback and connect it to the sink (filter->gain->destination).
      *
      * Ramps up playback to given speed within one second.
-     * @param rate {number}
      */
-    Track.prototype.start = function (rate) {
+    Track.prototype.start = function () {
+        if (this.isPlaying()) {
+            throw new Error('Can only play a track that is not currently playing');
+        }
         if (this.buffer) {
-            var now = context.currentTime;
-            this.source = context.createBufferSource();
-            this.source.connect(this.filter.getNode());
-            this.source.buffer = this.buffer;
-            this.source.playbackRate.setValueAtTime( rate, now );
-            this.source.noteOn(now);
             this.bufferPosition = {
                 position: 0,
-                globalTime: now
+                globalTime: context.currentTime
             };
-            this.trigger('play');
+            this._setupSourceAndPlay();
         }
+    };
+
+    /**
+     * Resume the current track from the last known position.
+     */
+    Track.prototype.resume = function () {
+        if (this.isPlaying()) {
+            throw new Error('Can only resume a track that is not currently playing');
+        }
+        if (!this.buffer || !this.bufferPosition) {
+            throw new Error('Can only resume a track that has been played before');
+        }
+        this.bufferPosition.globalTime = context.currentTime;
+        this._setupSourceAndPlay();
+    };
+
+    Track.prototype._setupSourceAndPlay = function () {
+        var now = context.currentTime;
+        this.source = context.createBufferSource();
+        this.source.connect(this.filter.getNode());
+        var forwardPlayback = this.playbackSpeedModifier >= 0;
+        this.source.buffer = forwardPlayback ? this.buffer : this.reversedBuffer;
+        this.source.start(now, forwardPlayback ? this.bufferPosition.position :
+            this.buffer.duration - this.bufferPosition.position);
+        this.trigger('play');
+    };
+
+    Track.prototype._reverseBuffer = function (buffer) {
+        var length = buffer.length,
+            reversedBuffer = context.createBuffer(buffer.numberOfChannels, length, buffer.sampleRate),
+            origChannelData,
+            reversedChannelData;
+
+        for (var i = 0; i < buffer.numberOfChannels; i++) {
+            origChannelData = buffer.getChannelData(i);
+            reversedChannelData = reversedBuffer.getChannelData(i);
+            for (var j = 0; j < length; j++) {
+                reversedChannelData[length - j - 1] = origChannelData[j];
+            }
+        }
+        return reversedBuffer;
     };
 
     /**
@@ -104,10 +146,9 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
     Track.prototype.stop = function () {
         if (this.isPlaying()) {
             this.trigger('stop');
-            this.source.noteOff(0);
+            this.source.stop(0);
             this.source.disconnect(0);
             this.source = null;
-            this.bufferPosition = null;
         }
     };
 
@@ -120,14 +161,40 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
     };
 
     /**
+     * Checks if track was playing before.
+     * @returns {boolean}
+     */
+    Track.prototype.wasPlaying = function () {
+        return !!this.bufferPosition;
+    };
+
+    /**
      * Set the playback rate. A rate of 1 is normal playback.
      * @param rate {number}
      */
     Track.prototype.setPlaybackRate = function (rate) {
         if (this.isPlaying()) {
-            this.updateBufferPosition();
-            this.source.playbackRate.setValueAtTime(rate, context.currentTime);
+            this.setPlaybackModifier(rate);
         }
+    };
+
+    /**
+     * Set the playback rate. A rate of 1 is normal playback.
+     * @param modifier {number}
+     */
+    Track.prototype.setPlaybackModifier = function (modifier) {
+        this.updateBufferPosition();
+        var lastModifier = this.playbackSpeedModifier;
+        if (modifier === 0) {
+            modifier = 0.0001;
+        }
+        this.playbackSpeedModifier = modifier;
+        if (lastModifier < 0 && modifier >= 0 || lastModifier >= 0 && modifier < 0) {
+            this.stop();
+            this.resume();
+        }
+        var number = Math.abs(modifier);
+        this.source.playbackRate.setValueAtTime(number, context.currentTime);
     };
 
     /**
@@ -166,7 +233,7 @@ define(['app/misc/context', 'app/audio/Filter', 'underscore', 'backbone'], funct
         this.bufferPosition = {
             position: this.bufferPosition.position +
                 (context.currentTime - this.bufferPosition.globalTime) *
-                this.source.playbackRate.value,
+                this.playbackSpeedModifier,
             globalTime: context.currentTime
         };
     };
