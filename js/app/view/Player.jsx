@@ -21,6 +21,32 @@ define(['jsx!app/view/Waveform', 'underscore', 'backbone', 'react'], function (W
         }
     });
 
+    var Slider = React.createClass({
+        propTypes: {
+            onUpdate: React.PropTypes.func.isRequired,
+            initial: React.PropTypes.number
+        },
+
+        getInitialState: function () {
+            var initial = this.props.initial;
+            return {
+                value: typeof initial === 'number' ? initial : 33
+            };
+        },
+
+        handleChange: function (value) {
+            this.setState({ value: value });
+            this.props.onUpdate(value);
+        },
+
+        render: function () {
+            return (
+                <input type='range' min={20} max={45} defaultValue={this.state.value} step={0.1}
+                    onChange={this.props.onUpdate}/>
+            );
+        }
+    });
+
     return Backbone.View.extend({
         className: 'player',
 
@@ -31,7 +57,7 @@ define(['jsx!app/view/Waveform', 'underscore', 'backbone', 'react'], function (W
                 '<div class="platter"></div>' +
                 '</div>' +
                 '<span class="pitch">Pitch</span>' +
-                '<input type="range" min="20" max="45" value="33" step="0.1">' +
+                '<div class="pitchFader"></div>' +
                 '<div class="trackName"></div>' +
                 '<div class="artist"></div>' +
                 '<span class="play">&#9654;</span>'
@@ -43,7 +69,6 @@ define(['jsx!app/view/Waveform', 'underscore', 'backbone', 'react'], function (W
         wheelActive: false,
 
         events: {
-            'change input[type="range"]': 'setSpeed',
             'click .play': 'togglePlayback'
         },
 
@@ -65,18 +90,19 @@ define(['jsx!app/view/Waveform', 'underscore', 'backbone', 'react'], function (W
             this.$el.append(this.template());
             React.renderComponent(<Waveform currentPosition={0} buffer={this.track.buffer}/>, this.$('.wf')[0]);
             React.renderComponent(<Platter rotation={0}/>, this.$('.platter')[0]);
-            this.speedSlider = this.$el.find('input[type="range"]');
-            this.speedSlider.val(this.rpm);
+            React.renderComponent(<Slider initial={this.rpm} onUpdate={this.setSpeed.bind(this)}/>,
+                this.$('.pitchFader')[0]);
             return this;
         },
 
-        setSpeed: function (val) {
+        setSpeed: function (eventOrVal) {
+            var val = typeof eventOrVal === 'object' ? parseFloat(eventOrVal.target.value) : eventOrVal;
             if (typeof val === 'number') {
                 this.rpm = val;
             } else {
-                this.rpm = parseFloat(this.speedSlider.val());
+                val = this.rpm;
             }
-            this.track.setPlaybackRate(this.rpm/33);
+            this.track.setPlaybackRate(val/33);
         },
 
         wheel: function (amount, pushed) {
