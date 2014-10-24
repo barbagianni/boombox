@@ -1,4 +1,4 @@
-define(['app/view/Player', 'app/audio/Track'], function (Player, Track) {
+define(['jsx!../../js/app/view/Player', 'app/audio/Track'], function (Player, Track) {
     describe('Player', function () {
         var track, player, canvas, hasLoaded;
 

@@ -1,14 +1,34 @@
-define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, Backbone) {
+define(['jsx!app/view/Waveform', 'underscore', 'backbone', 'react'], function (Waveform, _, Backbone, React) {
+
+    var Platter = React.createClass({
+        propTypes: {
+            rotation: React.PropTypes.number.isRequired
+        },
+        render: function () {
+            return (
+                <div className='plate'>
+                    <div className='ring' style={{
+                        '-webkit-transform': 'rotate(' + this.props.rotation + 'rad)'
+                    }}>
+                        <div className='ring'>
+                            <div className='ring'>
+                                <div className='logo'> ___<br/>{'{'}o,o{'}'}<br/>|)__)<br/>-"-"-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+    });
+
     return Backbone.View.extend({
         className: 'player',
 
         trackTemplate: _.template('<a href="<%-backLink%>"><%-trackName%></a>'),
 
         template: _.template(
-            '<div class="plate">' +
-                '<div class="ring"><div class="ring"><div class="ring">' +
-                '<div class="logo"> ___<br/>{o,o}<br/>|)__)<br/>-"-"-</div>' +
-                '</div></div></div>' +
+                '<div class="wf"></div>' +
+                '<div class="platter"></div>' +
                 '</div>' +
                 '<span class="pitch">Pitch</span>' +
                 '<input type="range" min="20" max="45" value="33" step="0.1">' +
@@ -35,14 +55,16 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
             }, this);
             this.track.on('load', function () {
                 this.$el.removeClass('disabled');
-                this.waveform.updatePosition();
+                React.renderComponent(<Waveform currentPosition={this.track.currentPosition()}
+                        buffer={this.track.buffer}/>,
+                    this.$('.wf')[0]);
             }, this);
-            this.waveform = new Waveform({track: this.track});
         },
 
         render: function () {
             this.$el.append(this.template());
-            this.$el.prepend(this.waveform.render().el);
+            React.renderComponent(<Waveform currentPosition={0} buffer={this.track.buffer}/>, this.$('.wf')[0]);
+            React.renderComponent(<Platter rotation={0}/>, this.$('.platter')[0]);
             this.speedSlider = this.$el.find('input[type="range"]');
             this.speedSlider.val(this.rpm);
             return this;
@@ -76,10 +98,9 @@ define(['app/view/Waveform', 'underscore', 'backbone'], function (Waveform, _, B
             }
             this.rotation += this.rpm * 2 * Math.PI * (now - this.lastTime) / 60000;
             this.lastTime = now;
-            var plate = this.$el.find('.plate');
-            plate.css('-webkit-transform', 'rotate(' + this.rotation + 'rad)');
-
-            this.waveform.updatePosition();
+            React.renderComponent(<Waveform currentPosition={this.track.currentPosition()}
+                buffer={this.track.buffer}/>, this.$('.wf')[0]);
+            React.renderComponent(<Platter rotation={this.rotation}/>, this.$('.platter')[0]);
         },
 
         loadTrackFromUrl: function (url, artist, trackName, backLink) {

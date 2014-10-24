@@ -6,12 +6,20 @@ requirejs.config({
         backbone: 'backbone/backbone',
         underscore: 'underscore/underscore',
         jquery: 'jquery/dist/jquery',
-        domReady: 'requirejs-domready/domReady'
+        domReady: 'requirejs-domready/domReady',
+        jsx: 'jsx-requirejs-plugin/js/jsx',
+        JSXTransformer: 'jsx-requirejs-plugin/js/JSXTransformer',
+        text: 'jsx-requirejs-plugin/js/text',
+        react: 'react/react'
+    },
+    jsx: {
+        fileExtension: '.jsx',
+        harmony: true
     }
 });
 
 requirejs([
-    'app/config', 'app/view/Player', 'app/view/Mixer', 'app/audio/Track', 'app/view/Tracklist', 'app/view/FileList',
+    'app/config', 'jsx!app/view/Player', 'app/view/Mixer', 'app/audio/Track', 'app/view/Tracklist', 'app/view/FileList',
     'app/midi/midiContext', 'jquery', 'domReady!', 'app/misc/requestAnimationFramePolyfill'
 ], function (
     config, Player, Crossfader, Track, Tracklist, FileList, midiContext, $
